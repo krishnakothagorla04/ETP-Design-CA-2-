@@ -1,0 +1,84 @@
+services:
+  gateway:
+    build: ./services/gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - checkout
+    environment:
+      CHECKOUT_URL: "http://checkout:8003"
+      PYTHONUNBUFFERED: "1"
+
+  checkout:
+    build: ./services/checkout
+    ports:
+      - "8003:8003"
+    depends_on:
+      - pricing
+      - inventory
+      - postgres
+    environment:
+      PRICING_URL: "http://pricing:8001"
+      INVENTORY_URL: "http://inventory:8002"
+      HTTP_TIMEOUT_SECONDS: "2.0"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      POSTGRES_USER: "checkout"
+      POSTGRES_PASSWORD: "changeme"
+      POSTGRES_DB: "checkout"
+
+  pricing:
+    build: ./services/pricing
+    ports:
+      - "8001:8001"
+
+  inventory:
+    build: ./services/inventory
+    ports:
+      - "8002:8002"
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "checkout"
+      POSTGRES_PASSWORD: "changeme"
+      POSTGRES_DB: "checkout"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # ── Monitoring Stack (CA-2) ──────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=1d"
+    depends_on:
+      - gateway
+      - checkout
+      - pricing
+      - inventory
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
+    volumes:
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:
+  grafana_data:

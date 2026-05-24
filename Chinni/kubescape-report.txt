@@ -1,0 +1,24 @@
+
+
+Security posture overview for repo: 'k8s/'
+
+Workload
+╭─────────────────────┬───────────┬─────────────────────────────────────────╮
+│ Control name        │ Resources │ View details                            │
+├─────────────────────┼───────────┼─────────────────────────────────────────┤
+│ Non-root containers │     7     │ $ kubescape scan control C-0013 k8s/ -v │
+╰─────────────────────┴───────────┴─────────────────────────────────────────╯
+
+
+Highest-stake workloads
+───────────────────────
+
+High-stakes workloads are defined as those which Kubescape estimates would have the highest impact if they were to be exploited.
+
+1. namespace: checkout-demo, name: inventory, kind: Deployment
+   $ kubescape scan workload Deployment/inventory --namespace checkout-demo --file-path=C:\Users\bhara\Desktop\Final\Chinni\k8s\base\inventory-deployment.yaml
+2. namespace: checkout-demo, name: pricing, kind: Deployment
+   $ kubescape scan workload Deployment/pricing --namespace checkout-demo --file-path=C:\Users\bhara\Desktop\Final\Chinni\k8s\base\pricing-deployment.yaml
+3. namespace: checkout-demo, name: postgres, kind: Deployment
+   $ kubescape scan workload Deployment/postgres --namespace checkout-demo --file-path=C:\Users\bhara\Desktop\Final\Chinni\k8s\db\postgres-deployment.yaml
+
