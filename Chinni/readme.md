@@ -1,4 +1,4 @@
-# ETP Design CA-2 — Screencast Script & Notes (5–10 Minutes)
+# ETP Design CA-2
 
 This script is refined to match the **exact timeline, commands, and sequence** specified in the **CA-2 Submission Plan PDF**.
 
